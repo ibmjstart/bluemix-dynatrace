@@ -21,9 +21,8 @@ The **first** automated action is found within the **.profile.d** folder's shell
 -  http://downloads.dynatracesaas.com/6.3/dynatrace-agent-unix.jar
 -  https://files.dynatrace.com/downloads/OnPrem/dynaTrace/6.5/6.5.0.1289/dynatrace-agent-6.5.0.1289-unix.jar
 
+Log messaging about the fetch activity can be inspected within the web application logs via the Bluemix web console UI or via ```cf logs dynabin --recent```.
+
 The **second** automated action is to dynamically rewrite the skeleton **index.yml** to reflect the correct route url for the dynatrace-agent-unix.jar file.  
 
 #License: Apache-2.0
-
-
-
