@@ -63,6 +63,7 @@ else
 fi
 # Dynamically adjusting the abstracted index.yml skeleton into a concrete representation
 sed -i.orig "s/custom.bluemixdomain.mybluemix.net/${appuri}/g" ./public/dist/6.2.0_1239/index.yml
+echo -e "${eyes}${Cyan}  6.2 INDEX.YML URL: ${Red}http://${appuri}/dist/6.2.0_1239/index.yml${no_color}"
 
 # Testing if the file has already been provided by the user
 if [ ! -f ./public/dist/6.3.0_1305/dynatrace-agent-unix.jar ]; then
@@ -73,6 +74,7 @@ else
 fi
 # Dynamically adjusting the abstracted index.yml skeleton into a concrete representation
 sed -i.orig "s/custom.bluemixdomain.mybluemix.net/${appuri}/g" ./public/dist/6.3.0_1305/index.yml
+echo -e "${eyes}${Cyan}  6.3 INDEX.YML URL: ${Red}http://${appuri}/dist/6.3.0_1305/index.yml${no_color}"
 
 # Testing if the file has already been provided by the user
 if [ ! -f ./public/dist/6.5.0_1289/dynatrace-agent-unix.jar ]; then
@@ -83,5 +85,6 @@ else
 fi
 # Dynamically adjusting the abstracted index.yml skeleton into a concrete representation
 sed -i.orig "s/custom.bluemixdomain.mybluemix.net/${appuri}/g" ./public/dist/6.5.0_1289/index.yml
+echo -e "${eyes}${Cyan}  6.5 INDEX.YML URL: ${Red}http://${appuri}/dist/6.5.0_1289/index.yml${no_color}"
 
 echo -e "${beers}  ${Green}finis coronat opus${no_color}"

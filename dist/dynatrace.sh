@@ -43,61 +43,50 @@ hourglass='\xE2\x8F\xB3'
 clear
 
 serverPort=$1
-profile=$2
-pathToWar=$3
-repoRoot=$4
-appName=$5
+pathToWar=$2
+repoRoot=$3
+appName=$4
+profile=$5
 collectorSvcName=dynatrace-collector-$RANDOM
 
-DynatraceDescrip="dynatrace.sh {ServerPort} {profile Name} {Path to App War File} {URL to Repo root hosting index.yml} {App Name}"
+DynatraceDescrip="dynatrace.sh {ServerPort} {Path to App War File} {URL to Repo root hosting index.yml} {App Name} {profile Name}"
 
 echo -e "${tools}${Cyan}  Welcome to the Dynatrace Helper Script${no_color}"
 echo -e "${tools}${Green}  Brought to you courtesy of IBM jStart (ibm.com/jstart)${no_color}"
 echo -e "${tools}  dyntrace.sh${Cyan} invoked using format ${Yellow}${DynatraceDescrip}${no_color}"
 if [ $# -eq 0 ]
   then
-    echo -e "${crossbones}${Red}  Five (5) Arguments required, none provided. :-(${no_color}"
+    echo -e "${crossbones}${Red}  Three (3) Arguments required, none provided. :-(${no_color}"
     echo -e "${crossbones}${Yellow}  Dynatrace Collector Server and Port (0.0.0.0:1234): ${Red}missing${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Repository Root URL hosting Dynatrace Agent index.yml: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Application Name: ${Red}missing${no_color}"
+    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name {Optional}: ${Red}missing${no_color}"
     exit 1
 elif [ $# -eq 1 ]
   then
-    echo -e "${crossbones}${Red}  Four (4) Arguments required, none provided. :-(${no_color}"
+    echo -e "${crossbones}${Red}  Three (3) Arguments required, one provided. :-(${no_color}"
     echo -e "${crossbones}${Yellow}  Dynatrace Collector Server and Port (#.#.#.#:#####): ${Cyan}${serverPort}${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Repository Root URL hosting Dynatrace Agent index.yml: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Application Name: ${Red}missing${no_color}"
+    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name {Optional}: ${Red}missing${no_color}"
     exit 1
 elif [ $# -eq 2 ]
   then
-    echo -e "${crossbones}${Red}  Three (3) Arguments required, none provided. :-(${no_color}"
+    echo -e "${crossbones}${Red}  Three (3) Arguments required, two provided. :-(${no_color}"
     echo -e "${crossbones}${Yellow}  Dynatrace Collector Server and Port (#.#.#.#:#####): ${Cyan}${serverPort}${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name: ${Cyan}${profile}${no_color}"
-    echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Red}missing${no_color}"
+    echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Cyan}${pathToWar}${no_color}"
     echo -e "${crossbones}${Yellow}  Repository Root URL hosting Dynatrace Agent index.yml: ${Red}missing${no_color}"
     echo -e "${crossbones}${Yellow}  Application Name: ${Red}missing${no_color}"
+    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name {Optional}: ${Red}missing${no_color}"
     exit 1
 elif [ $# -eq 3 ]
   then
-    echo -e "${crossbones}${Red}  Two (2) Arguments required, none provided. :-(${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Collector Server and Port (#.#.#.#:#####): ${Cyan}${serverPort}${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name: ${Cyan}${profile}${no_color}"
-    echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Cyan}${pathToWar}${no_color}"
-    echo -e "${crossbones}${Yellow}  Repository Root URL hosting Dynatrace Agent index.yml: ${Red}missing${no_color}"
-    echo -e "${crossbones}${Yellow}  Application Name: ${Red}missing${no_color}"
-    exit 1
+    echo -e "${eyes}${Red}  Three (3) Arguments required, three provided. Optional Appname defaulting to ${Yellow}${appName:-dynatest}${Red}. Optional Dynatrace Profile Name not provided.${no_color}"
 elif [ $# -eq 4 ]
   then
-    echo -e "${crossbones}${Yellow}  Dynatrace Collector Server and Port (#.#.#.#:#####): ${Cyan}${serverPort}${no_color}"
-    echo -e "${crossbones}${Yellow}  Dynatrace Profile Name: ${Cyan}${profile}${no_color}"
-    echo -e "${crossbones}${Yellow}  Local Path to Application WAR file: ${Cyan}${pathToWar}${no_color}"
-    echo -e "${crossbones}${Yellow}  Repository Root URL hosting Dynatrace Agent index.yml: ${Cyan}${repoRoot}${no_color}"
-    echo -e "${crossbones}${Yellow}  Application Name: ${Red}missing${no_color}"
-    exit 1
+    echo -e "${eyes}${Red}  Three (3) Arguments required, three provided. Optional Appname set to ${Yellow}${appName:-dynatest}${Red}. Optional Dynatrace Profile Name not provided.${no_color}"
 fi
 
 loginCheckFail=$(cf target | grep "Not logged in" || true)
@@ -107,24 +96,25 @@ if [ ! -z "${loginCheckFail}" ]; then
 fi
 
 echo -e "${delivery}${Yellow}  Creating a Dynatrace Collector User Provided Service named ${Cyan}${collectorSvcName}${no_color}"
-cf create-user-provided-service ${collectorSvcName} -p """'{\"server\":\"${serverPort}\",\"profile\":\"${profile}\"}'"""
+if [ -z "${profile}" ]; then
+  cf create-user-provided-service ${collectorSvcName} -p """'{\"server\":\"${serverPort}\"}'"""
+else
+  cf create-user-provided-service ${collectorSvcName} -p """'{\"server\":\"${serverPort}\",\"profile\":\"${profile}\"}'"""
+fi
 
-echo -e "${delivery}${Yellow}  Creating ${Cyan}${appName}${Yellow} within Bluemix${no_color}"
-cf push ${appName} -p ${pathToWar}
+echo -e "${delivery}${Yellow}  Creating ${Cyan}${appName:-dynatest}${Yellow} within Bluemix${no_color}"
+cf push ${appName:-dynatest} -m 256m -p ${pathToWar}
 
-echo -e "${delivery}${Yellow}  Adding ${Cyan}JBP_CONFIG_DYNATRACEAGENT${Yellow} environment variable with a value of 'repository_root: ${repoRoot}'${no_color}"
-cf se ${appName} JBP_CONFIG_DYNATRACEAGENT "repository_root: ${repoRoot}"
+echo -e "${delivery}${Yellow}  Adding ${Cyan}JBP_CONFIG_DYNATRACEAPPMONAGENT${Yellow} environment variable with a value of 'repository_root: ${repoRoot}'${no_color}"
+cf se ${appName:-dynatest} JBP_CONFIG_DYNATRACEAPPMONAGENT "repository_root: ${repoRoot}"
 
-echo -e "${delivery}${Yellow}  Binding ${Cyan}${collectorSvcName}${Yellow} to ${Cyan}${appName}{$Yellow} ...${no_color}"
-cf bs ${appName} ${collectorSvcName}
+echo -e "${delivery}${Yellow}  Binding ${Cyan}${collectorSvcName}${Yellow} to ${Cyan}${appName:-dynatest}{$Yellow} ...${no_color}"
+cf bs ${appName:-dynatest} ${collectorSvcName}
 
-echo -e "${delivery}${Yellow}  Restaging ${Cyan}${appName}${Yellow} ...${no_color}"
-cf restage ${appName}
-
-echo -e "${delivery}${Yellow}  Interrogating ${Cyan}${appName}${Yellow} log files ${no_color}"
-cf files ${appName} logs/staging_task.log
+echo -e "${delivery}${Yellow}  Restaging ${Cyan}${appName:-dynatest}${Yellow} ...${no_color}"
+cf restage ${appName:-dynatest}
 
 echo -e ""
-cf logs ${appName} --recent
+cf logs ${appName:-dynatest} --recent
 
 echo -e "${beers}  ${Green}finis coronat opus${no_color}"

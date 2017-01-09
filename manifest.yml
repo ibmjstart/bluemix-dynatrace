@@ -1,3 +1,4 @@
 ---
   name: dynabin
+  memory: 256M
   random-route: true
