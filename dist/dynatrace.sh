@@ -49,11 +49,11 @@ appName=$4
 profile=$5
 collectorSvcName=dynatrace-collector-$RANDOM
 
-DynatraceDescrip="dynatrace.sh {ServerPort} {Path to App War File} {URL to Repo root hosting index.yml} {App Name} {profile Name}"
+DynatraceDescrip="dynatrace.sh ${1:-ServerPort} ${2:-Path_to_App_War_File} ${3:-URL_to_Repo_root_hosting_index.yml} ${4:-AppName} ${5:-profileName}"
 
 echo -e "${tools}${Cyan}  Welcome to the Dynatrace Helper Script${no_color}"
 echo -e "${tools}${Green}  Brought to you courtesy of IBM jStart (ibm.com/jstart)${no_color}"
-echo -e "${tools}  dyntrace.sh${Cyan} invoked using format ${Yellow}${DynatraceDescrip}${no_color}"
+echo -e "${tools}  dynatrace.sh${Cyan} invoked using format ${Yellow}${DynatraceDescrip}${no_color}"
 if [ $# -eq 0 ]
   then
     echo -e "${crossbones}${Red}  Three (3) Arguments required, none provided. :-(${no_color}"
